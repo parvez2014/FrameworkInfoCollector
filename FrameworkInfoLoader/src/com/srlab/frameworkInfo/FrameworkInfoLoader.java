@@ -30,14 +30,14 @@ public class FrameworkInfoLoader {
 	private String jarPath;
 	private ArrayList<IType> typeList;
 	private HashMap<String,IType> hmIType;
-	HashMap<String, HashSet<String>> typeRelation;
+	private HashMap<String, HashSet<String>> typeRelation;
 	private HashMap<String,HashSet<IType>> hmStringTypeToSubType;
 	public FrameworkInfoLoader(String _jarPath){
 		this.jarPath = _jarPath;
 		this.typeList = new ArrayList();
 		this.hmStringTypeToSubType = new HashMap();
 		this.hmIType = new HashMap();
-		typeRelation = new HashMap();
+		this.typeRelation = new HashMap();
 	}
 	
 	private void printIMethod(IMethod method) throws JavaModelException{
@@ -60,11 +60,9 @@ public class FrameworkInfoLoader {
 		}
 	}
 	
-	//find whether type2 is a subtype of type 1
+	//find whether type2 is a sub type of type 1
 	public boolean isSubTypeOf(IType type1,IType type2){
-		
-		
-		
+
 		return false;
 	}
 	
@@ -404,7 +402,7 @@ public class FrameworkInfoLoader {
 	}
 	public void load() throws CoreException{
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		System.out.println("root" + root.getLocation().toOSString());
+		System.out.println("Root Location:" + root.getLocation().toOSString());
 		IProject[] projects = root.getProjects();
 		
 		for (IProject project : projects) {
@@ -423,31 +421,34 @@ public class FrameworkInfoLoader {
 							
 							//System.out.println("----classFile: "+ classFile.getType().getFullyQualifiedName());
 							for (IJavaElement javaElement : classFile.getChildren()) {
-								if(javaElement instanceof IType && javaElement.getElementName().length()>0 && Flags.isPublic(((IType)javaElement).getFlags())==true){
+								if(javaElement instanceof IType && javaElement.getElementName().length()>0 && (Flags.isPublic(((IType)javaElement).getFlags()) ||Flags.isProtected(((IType)javaElement).getFlags()))
+										&& FrameworkInfoUtility.isInteresting(((IType)javaElement).getFullyQualifiedName())){
 									IType iType = ((IType)javaElement);
 									
-									//if(Flags.isPublic(iType.getFlags())==false) continue;
 									typeList.add((IType)javaElement);
 									hmIType.put(((IType)javaElement).getFullyQualifiedName(), iType);
-									System.out.println("--------IType "+  ((IType)javaElement).getFullyQualifiedName());
-									//System.out.println("Filter Name: "+ this.getTypeName(((IType)javaElement).getFullyQualifiedName()));
 									
-									System.out.println("Super: "+((IType)javaElement).getSuperclassName());
-									System.out.println("Super: "+((IType)javaElement).getSuperclassTypeSignature());
+									System.out.println("--------IType "+  ((IType)javaElement).getFullyQualifiedName());							
+									System.out.println("Super Class Name: "+((IType)javaElement).getSuperclassName());
+									System.out.println("Super Class Type Signature: "+((IType)javaElement).getSuperclassTypeSignature());
 									
 									for(IMethod method: ((IType)javaElement).getMethods()){
 										this.printIMethod(method);
 									}
 								}
 							}
-						}
-						
+						}				
 					}
 				}
 			}
 		}
 		
+		FrameworkStatistics fstatistics = new FrameworkStatistics(this.typeList);
+		fstatistics.run();
+		fstatistics.print();
 		
+		//Enable the following code for type relation analysis
+		/*
 		this.subTypeFinder();
 		HashSet<String> list = new HashSet();
 		IType type = this.hmIType.get("javax.Swing.JButton");
@@ -470,6 +471,8 @@ public class FrameworkInfoLoader {
 		for(String s:hs){
 			System.out.println("RT: "+s);
 		}
+		
+		*/
 		//System.out.println("Type: "+type.getFullyQualifiedName());
 		
 		
