@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 
 public class FrameworkInfoLoader {
 
@@ -40,11 +41,38 @@ public class FrameworkInfoLoader {
 		this.typeRelation = new HashMap();
 	}
 	
+	private String typeSignatureToFullName(IMethod method, String signature) throws JavaModelException{
+		String name = method.getReturnType();
+		String simpleName = Signature.getSignatureSimpleName(signature);
+		IType type = method.getDeclaringType();
+		String[][] allResults = type.resolveType(simpleName);
+		String fullName = null;
+		if(allResults != null) {
+			String[] nameParts = allResults[0];
+			if(nameParts != null) {
+				fullName = new String();
+				for(int i=0 ; i < nameParts.length ; i++) {
+					if(fullName.length() > 0) {
+						fullName += '.';
+					}
+					if(nameParts[i] != null) {
+						fullName += nameParts[i];
+					}
+				}
+			}
+		}
+		return fullName;
+	}
+	private String typeSignatureToSimpleName(String signature){
+		return Signature.getSignatureSimpleName(signature);
+	}
 	private void printIMethod(IMethod method) throws JavaModelException{
 		String name = method.getElementName();
 		ArrayList<String> parameterList = new ArrayList();
 		for(String parameter:method.getParameterTypes()){
 			parameterList.add(this.getTypeName(parameter));
+			System.out.println("Original Parameter: "+parameter+"   Simple Name: "+this.typeSignatureToSimpleName(parameter));
+			System.out.println("Qualified Name: "+this.typeSignatureToFullName(method, parameter));
 		}
 		System.out.println("Method: "+name+" parameter: "+parameterList +"  is Public: "+Flags.isPublic(method.getFlags()));
 	}
