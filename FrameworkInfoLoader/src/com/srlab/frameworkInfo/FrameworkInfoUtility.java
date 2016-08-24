@@ -10,9 +10,6 @@ public class FrameworkInfoUtility {
 	};
 	public static String code_file_extensions[] = {".java"};
 
-	public static String code_location="F:\\data";
-	
-
 	public static boolean isInteresting(ITypeBinding tb){
 		if(tb==null) return false;
 		else {

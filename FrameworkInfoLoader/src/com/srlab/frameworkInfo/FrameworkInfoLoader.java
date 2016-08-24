@@ -1,6 +1,10 @@
 package com.srlab.frameworkInfo;
 
 import java.awt.image.ImageObserver;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,19 +32,20 @@ import org.eclipse.jdt.core.Signature;
 
 public class FrameworkInfoLoader {
 
-	private String jarPath;
-	private ArrayList<IType> typeList;
-	private HashMap<String,IType> hmIType;
+	private ArrayList<IType> iTypeList;
+	private HashMap<String,IType> hmQualifiedNameToiType;
+	
 	private HashMap<String, HashSet<String>> typeRelation;
 	private HashMap<String,HashSet<IType>> hmStringTypeToSubType;
-	public FrameworkInfoLoader(String _jarPath){
-		this.jarPath = _jarPath;
-		this.typeList = new ArrayList();
+	public FrameworkInfoLoader(){
+		this.iTypeList = new ArrayList();
+		this.hmQualifiedNameToiType = new HashMap();
+		
 		this.hmStringTypeToSubType = new HashMap();
-		this.hmIType = new HashMap();
 		this.typeRelation = new HashMap();
 	}
 	
+	//type signature cannot handle basic type and return null for those cases
 	private String typeSignatureToFullName(IMethod method, String signature) throws JavaModelException{
 		String name = method.getReturnType();
 		String simpleName = Signature.getSignatureSimpleName(signature);
@@ -71,7 +76,7 @@ public class FrameworkInfoLoader {
 		ArrayList<String> parameterList = new ArrayList();
 		for(String parameter:method.getParameterTypes()){
 			parameterList.add(this.getTypeName(parameter));
-			System.out.println("Original Parameter: "+parameter+"   Simple Name: "+this.typeSignatureToSimpleName(parameter));
+			System.out.println("Original Parameter: "+parameter+" Simple Name: "+this.typeSignatureToSimpleName(parameter));
 			System.out.println("Qualified Name: "+this.typeSignatureToFullName(method, parameter));
 		}
 		System.out.println("Method: "+name+" parameter: "+parameterList +"  is Public: "+Flags.isPublic(method.getFlags()));
@@ -90,14 +95,13 @@ public class FrameworkInfoLoader {
 	
 	//find whether type2 is a sub type of type 1
 	public boolean isSubTypeOf(IType type1,IType type2){
-
 		return false;
 	}
 	
 	public boolean findRelatedType(IType findType,HashSet<String> relatedTypeList) throws JavaModelException{
 		System.out.println("Total: "+relatedTypeList.size());
 		int current=0;
-		for(IType type:this.typeList){
+		for(IType type:this.iTypeList){
 			System.out.println("Current: "+(current++));
 			
 			for(IMethod method:type.getMethods()){
@@ -107,7 +111,7 @@ public class FrameworkInfoLoader {
 						
 						//p1. If method parameter type matches with with our find type
 						String parameter = this.getTypeName(parameterTypeSignature);
-						IType  parameterType = this.hmIType.get(parameter);
+						IType  parameterType = this.hmQualifiedNameToiType.get(parameter);
 						//System.out.println("ParameterTypeSignature:" +parameterTypeSignature);
 						//System.out.println("Parameter: "+parameter);
 						//System.out.println("ParameterType: "+parameterType);
@@ -156,8 +160,8 @@ public class FrameworkInfoLoader {
 			if(tmpType.getFullyQualifiedName().equals(tmpType.getFullyQualifiedName()))
 				return true;
 			else {
-				if(tmpType.getSuperclassName()!=null && this.hmIType.containsKey(tmpType.getSuperclassName())){
-					tmpType = this.hmIType.get(tmpType.getSuperclassName());
+				if(tmpType.getSuperclassName()!=null && this.hmQualifiedNameToiType.containsKey(tmpType.getSuperclassName())){
+					tmpType = this.hmQualifiedNameToiType.get(tmpType.getSuperclassName());
 				}
 				else tmpType=null;
 			}
@@ -185,7 +189,7 @@ public class FrameworkInfoLoader {
 		System.out.println("Type: "+type);
 		if(type.isInterface()){
 				for(String s:findType.getSuperInterfaceNames()){
-					if(this.isASubType(type,hmIType.get(s))==true) return true;
+					if(this.isASubType(type,hmQualifiedNameToiType.get(s))==true) return true;
 				}
 			
 			return false;
@@ -193,7 +197,7 @@ public class FrameworkInfoLoader {
 		
 		else if(type.isClass()&& findType.isClass()){
 			while(findType.getSuperclassName()!=null){
-				findType = hmIType.get(findType.getSuperclassName());
+				findType = hmQualifiedNameToiType.get(findType.getSuperclassName());
 				if(findType.getFullyQualifiedName().equals(type.getFullyQualifiedName()))
 					return true;
 			}
@@ -211,11 +215,51 @@ public class FrameworkInfoLoader {
 		
 	}
 	
+	public void save(String filePath) throws IOException{
+		System.out.println("Now saving the type list... Total Types: "+this.iTypeList.size());
+		ArrayList<String> lineList = new ArrayList();
+		for(int i=0;i<this.iTypeList.size();i++){
+			IType iType = iTypeList.get(i);
+			lineList.add(iType.getFullyQualifiedName());
+			
+			String methodLine = "";
+			//now add all method name and their parameter
+			try {
+				for(IMethod method: iType.getMethods()){
+					String methodName = method.getElementName();
+					ArrayList<String> parameterList = new ArrayList();
+					for(String parameter:method.getParameterTypes()){
+						System.out.println("Parameter Signature: "+parameter);
+						System.out.println("Parametre: "+this.typeSignatureToFullName(method, parameter));
+						parameterList.add(this.typeSignatureToFullName(method, parameter));
+					}
+					methodLine = methodLine+methodName+" "+parameterList.toString()+" ";
+					System.out.println("Method: "+methodLine);
+				}
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			lineList.add(methodLine);
+			System.out.println("Completed method collection ["+i+"]of["+iTypeList.size()+"]");
+		}
+		
+		System.out.println("Total Lines: "+lineList.size());
+		//now write the lines into files
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filePath)));
+		for(int i=0;i<lineList.size();i++){
+			bw.write(lineList.get(i));
+			if(i<lineList.size()-1){
+				bw.newLine();
+			}
+		}
+		bw.close();
+	}
 	public void generateTypeRelation() throws JavaModelException{
 		
 		int current=0;
 		
-		for(IType type:this.typeList){
+		for(IType type:this.iTypeList){
 				System.out.println("Current: "+(current++));
 			if(Flags.isPublic(type.getFlags())==false || type.isInterface()) continue;
 			IType classType = type;
@@ -227,7 +271,7 @@ public class FrameworkInfoLoader {
 						for(String parameterTypeSignature:method.getParameterTypes()){
 							if(parameterTypeSignature.startsWith("L")){
 								String parameter = this.getTypeName(parameterTypeSignature);
-								IType  parameterType = this.hmIType.get(parameter);
+								IType  parameterType = this.hmQualifiedNameToiType.get(parameter);
 								
 								//p1. explore direct relation
 								if(parameterType==null) continue;						
@@ -267,7 +311,7 @@ public class FrameworkInfoLoader {
 				}
 			}
 			if(classType.getSuperclassName()!=null){
-				classType = this.hmIType.get(classType.getSuperclassName());
+				classType = this.hmQualifiedNameToiType.get(classType.getSuperclassName());
 			}
 			else classType = null;
 		}
@@ -289,7 +333,7 @@ public class FrameworkInfoLoader {
 
 						//p1. If method parameter type matches with with our find type
 						String parameter = this.getTypeName(parameterTypeSignature);
-						IType  parameterType = this.hmIType.get(parameter);
+						IType  parameterType = this.hmQualifiedNameToiType.get(parameter);
 						if(parameterType==null) continue;						
 						else if(parameter.equals(findType)){
 							return true;
@@ -372,8 +416,8 @@ public class FrameworkInfoLoader {
 		return list;
 	}
 	public void subTypeFinder() throws JavaModelException{
-		System.out.println("Total Type List = "+this.typeList.size());
-		for(IType iType:this.typeList){
+		System.out.println("Total Type List = "+this.iTypeList.size());
+		for(IType iType:this.iTypeList){
 			IType currentIType = iType;
 			if(iType.getSuperclassName()==null || iType.getSuperclassName()!=null && this.hmStringTypeToSubType.containsKey(iType.getSuperclassName())) continue;
 			while(currentIType!=null){
@@ -417,7 +461,7 @@ public class FrameworkInfoLoader {
 						
 					}
 				}
-				currentIType = this.hmIType.get(currentIType.getSuperclassName()); 
+				currentIType = this.hmQualifiedNameToiType.get(currentIType.getSuperclassName()); 
 			}
 		}
 		
@@ -453,16 +497,17 @@ public class FrameworkInfoLoader {
 										&& FrameworkInfoUtility.isInteresting(((IType)javaElement).getFullyQualifiedName())){
 									IType iType = ((IType)javaElement);
 									
-									typeList.add((IType)javaElement);
-									hmIType.put(((IType)javaElement).getFullyQualifiedName(), iType);
+									this.iTypeList.add((IType)javaElement);
+									this.hmQualifiedNameToiType.put(((IType)javaElement).getFullyQualifiedName(), iType);
 									
 									System.out.println("--------IType "+  ((IType)javaElement).getFullyQualifiedName());							
 									System.out.println("Super Class Name: "+((IType)javaElement).getSuperclassName());
 									System.out.println("Super Class Type Signature: "+((IType)javaElement).getSuperclassTypeSignature());
 									
+									/*Printing all methods 
 									for(IMethod method: ((IType)javaElement).getMethods()){
 										this.printIMethod(method);
-									}
+									}*/
 								}
 							}
 						}				
@@ -471,7 +516,8 @@ public class FrameworkInfoLoader {
 			}
 		}
 		
-		FrameworkStatistics fstatistics = new FrameworkStatistics(this.typeList);
+		
+		FrameworkStatistics fstatistics = new FrameworkStatistics(this.iTypeList);
 		fstatistics.run();
 		fstatistics.print();
 		

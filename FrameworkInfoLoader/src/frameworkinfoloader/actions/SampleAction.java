@@ -1,5 +1,7 @@
 package frameworkinfoloader.actions;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -36,10 +38,11 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 			window.getShell(),
 			"FrameWorkInfoLoader",
 			"Hello, Welcome to FrameworkInfoLoader");
-		FrameworkInfoLoader loader = new FrameworkInfoLoader("");
+		FrameworkInfoLoader loader = new FrameworkInfoLoader();
 		try {
 			loader.load();
-		} catch (CoreException e) {
+			loader.save("E:\\frameworkInfo\\swing_awt.txt");
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
