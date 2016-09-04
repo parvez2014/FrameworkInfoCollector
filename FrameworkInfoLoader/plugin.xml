@@ -16,7 +16,7 @@
             </separator>
          </menu>
          <action
-               label="&amp;Sample Action"
+               label="&amp;Collect Framework Informationtion"
                icon="icons/sample.gif"
                class="frameworkinfoloader.actions.SampleAction"
                tooltip="Hello, Eclipse world"

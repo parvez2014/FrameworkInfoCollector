@@ -48,9 +48,16 @@ public class FrameworkInfoLoader {
 	//type signature cannot handle basic type and return null for those cases
 	private String typeSignatureToFullName(IMethod method, String signature) throws JavaModelException{
 		String name = method.getReturnType();
+		
 		String simpleName = Signature.getSignatureSimpleName(signature);
 		IType type = method.getDeclaringType();
+	
+		
 		String[][] allResults = type.resolveType(simpleName);
+		
+		System.out.println("String signature: "+signature);
+		System.out.println("Simple Name: "+simpleName+"  All Results: ");
+	
 		String fullName = null;
 		if(allResults != null) {
 			String[] nameParts = allResults[0];
@@ -66,8 +73,10 @@ public class FrameworkInfoLoader {
 				}
 			}
 		}
-		return fullName;
+		if(fullName==null) return simpleName.replaceAll("/",".");
+		else return fullName.replaceAll("/",".");
 	}
+	
 	private String typeSignatureToSimpleName(String signature){
 		return Signature.getSignatureSimpleName(signature);
 	}
@@ -220,8 +229,7 @@ public class FrameworkInfoLoader {
 		ArrayList<String> lineList = new ArrayList();
 		for(int i=0;i<this.iTypeList.size();i++){
 			IType iType = iTypeList.get(i);
-			lineList.add(iType.getFullyQualifiedName());
-			
+			lineList.add("<class>"+iType.getFullyQualifiedName()+"</class>");	
 			String methodLine = "";
 			//now add all method name and their parameter
 			try {
@@ -233,7 +241,8 @@ public class FrameworkInfoLoader {
 						System.out.println("Parametre: "+this.typeSignatureToFullName(method, parameter));
 						parameterList.add(this.typeSignatureToFullName(method, parameter));
 					}
-					methodLine = methodLine+methodName+" "+parameterList.toString()+" ";
+					methodLine = "<method>"+"<name>"+methodName+"</name>"+"<param>"+parameterList.toString()+"</param>"+"<return>"+typeSignatureToFullName(method,Signature.getReturnType(method.getSignature()))+"</return>"+"</method>";
+					lineList.add(methodLine);
 					System.out.println("Method: "+methodLine);
 				}
 			} catch (JavaModelException e) {
@@ -517,8 +526,8 @@ public class FrameworkInfoLoader {
 		}
 		
 		
-		FrameworkStatistics fstatistics = new FrameworkStatistics(this.iTypeList);
-		fstatistics.run();
+		FrameworkStatistics fstatistics = new FrameworkStatistics();
+		fstatistics.run(this.iTypeList);
 		fstatistics.print();
 		
 		//Enable the following code for type relation analysis
@@ -564,6 +573,7 @@ public class FrameworkInfoLoader {
 		//JButton b = new JButton();
 		//JComponent c = new Jcomponent
 		//System.out.println();
+		System.out.println("Replace: "+"java/awt/font/NumericShaper".replaceAll("/", "."));
 	}
 
 }

@@ -9,73 +9,72 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class FrameworkStatistics {
-	private ArrayList<IType> typeList;
-	private long nClasses;
-	private long nInterfaces;
-	private long nPublicMethods;
-	private long nPrivateMethods;
-	private long nProtectedMethods;
-	private long nWithoutASMethods; //methods that does not have any access specifiers
-	
-	private long nPublicFields;
-	private long nProtectedFields;
-	private long nPrivateFields;
-	private long nWithoutASFields;
-	
-	
-	public FrameworkStatistics(ArrayList<IType> typeList){
-		this.typeList = typeList;
-		
-		this.nClasses = 0;
-		this.nInterfaces =0;
-		
-		this.nPrivateFields=0;
-		this.nProtectedFields=0;
-		this.nWithoutASFields =0;
-		
-		this.nPublicMethods =0;
-		this.nPrivateMethods = 0;
-		this.nProtectedMethods = 0;
-		this.nWithoutASMethods = 0;
+
+	private long totalClasses;
+	private long totalInterfaces;
+
+	private long totalMethods;
+	private long totalPublicMethods;
+	private long totalPrivateMethods;
+	private long totalProtectedMethods;
+	private long totalWithoutAccessSpecifierMethods; // methods that does not have any access specifiers
+
+	private int totalFields;
+	private long totalPublicFields;
+	private long totalProtectedFields;
+	private long totalPrivateFields;
+	private long totalWithoutAccessSpecifierFields; // Fields that does not have any access specifiers
+
+	public FrameworkStatistics() {
+
+		this.totalClasses = 0;
+		this.totalInterfaces = 0;
+
+		this.totalFields = 0;
+		this.totalPublicFields = 0;
+		this.totalPrivateFields = 0;
+		this.totalProtectedFields = 0;
+		this.totalWithoutAccessSpecifierFields = 0;
+
+		this.totalMethods = 0;
+		this.totalPublicMethods = 0;
+		this.totalPrivateMethods = 0;
+		this.totalProtectedMethods = 0;
+		this.totalWithoutAccessSpecifierMethods = 0;
 	}
-	
-	public void run(){
-		for(IType type:this.typeList){
+
+	public void run(ArrayList<IType> typeList) {
+		for (IType type : typeList) {
 			try {
-				if(type.isClass()){
-					this.nClasses++;
+				if (type.isClass()) {
+					this.totalClasses++;
+				} else if (type.isInterface()) {
+					this.totalInterfaces++;
 				}
-				else if(type.isInterface()){
-					this.nInterfaces++;
-				}
-				
-				for(IMethod method:type.getMethods()){
-					if(Flags.isPublic(method.getFlags())){
-						this.nPublicMethods++;
-					}
-					else if(Flags.isPrivate(method.getFlags())){
-						this.nPrivateMethods++;
-					}
-					else if(Flags.isProtected(method.getFlags())){
-						this.nProtectedMethods++;
-					}
-					else if(Flags.isPackageDefault(method.getFlags())){
-						this.nWithoutASMethods++;
+
+				for (IMethod method : type.getMethods()) {
+					totalMethods++;
+					if (Flags.isPublic(method.getFlags())) {
+						this.totalPublicMethods++;
+					} else if (Flags.isPrivate(method.getFlags())) {
+						this.totalPrivateMethods++;
+					} else if (Flags.isProtected(method.getFlags())) {
+						this.totalProtectedMethods++;
+					} else if (Flags.isPackageDefault(method.getFlags())) {
+						this.totalWithoutAccessSpecifierMethods++;
 					}
 				}
-				
-				for(IField field:type.getFields()){
-					if(Flags.isPublic(field.getFlags())){
-						this.nPublicFields++;
-					}
-					else if(Flags.isPrivate(field.getFlags())){
-						this.nPrivateFields++;
-					}
-					else if(Flags.isProtected(field.getFlags())){
-						this.nProtectedFields++;
-					}
-					else if(Flags.isPackageDefault(field.getFlags())){
-						this.nWithoutASFields++;
+
+				for (IField field : type.getFields()) {
+					this.totalFields++;
+					if (Flags.isPublic(field.getFlags())) {
+						this.totalPublicFields++;
+					} else if (Flags.isPrivate(field.getFlags())) {
+						this.totalPrivateFields++;
+					} else if (Flags.isProtected(field.getFlags())) {
+						this.totalProtectedFields++;
+					} else if (Flags.isPackageDefault(field.getFlags())) {
+						this.totalWithoutAccessSpecifierFields++;
 					}
 				}
 			} catch (JavaModelException e) {
@@ -84,29 +83,49 @@ public class FrameworkStatistics {
 			}
 		}
 	}
-	
-	public void print(){
-		long totalTypes =(this.nClasses + this.nInterfaces);
-		long totalMethods = (this.nPrivateMethods+this.nProtectedMethods+this.nPublicMethods+this.nWithoutASMethods);
-		long totalFields = (this.nPrivateFields+this.nProtectedFields+this.nPublicFields+this.nWithoutASFields);
-		System.out.println("Classes: "+this.nClasses);
-		System.out.println("Interfaces: "+this.nInterfaces);
-		
-		System.out.println("Total Types: "+totalTypes);
-		System.out.println("Total methods: "+totalMethods);
-		System.out.println("Public Methods: "+this.nPublicMethods+" ["+((this.nPublicMethods*1.0f)/totalMethods)+"]");
-		System.out.println("Private Methods: "+this.nPrivateMethods+ " ["+((this.nPrivateMethods*1.0f)/totalMethods)+"]");
-		System.out.println("Protected Methods: "+this.nProtectedMethods+" ["+((this.nProtectedMethods*1.0f)/totalMethods)+"]");
-		System.out.println("Without Access Specifier Methods: "+this.nWithoutASMethods+" ["+((this.nWithoutASMethods*1.0f)/totalMethods)+"]");
-		
-		
-		System.out.println("Total Fields: "+totalFields);
-		System.out.println("Public Fields: "+this.nPublicFields+" ["+((this.nPublicFields*1.0f)/totalMethods)+"]");
-		System.out.println("Private Fields: "+this.nPrivateFields+ " ["+((this.nPrivateFields*1.0f)/totalMethods)+"]");
-		System.out.println("Protected Fields: "+this.nProtectedFields+ " ["+((this.nProtectedFields*1.0f)/totalMethods)+"]");
-		System.out.println("Without Access Specifier Fields: "+this.nWithoutASFields+ " ["+((this.nWithoutASFields*1.0f)/totalMethods)+"]");
-		
 
-		
+	public void print() {
+
+		assert (this.totalMethods == (this.totalPublicMethods
+				+ this.totalPrivateMethods + this.totalProtectedMethods + this.totalWithoutAccessSpecifierMethods)) : "Total method should be same to the sum of four different methods";
+		assert (this.totalFields == (this.totalPublicFields
+				+ this.totalPrivateFields + this.totalProtectedFields + this.totalWithoutAccessSpecifierFields)) : "Total method should be same to the sum of four different fields";
+
+		long totalTypes = (this.totalClasses + this.totalInterfaces);
+
+		System.out.println("Total Types: " + totalTypes);
+		System.out.println("Total Classes: " + this.totalClasses);
+		System.out.println("Total Interfaces: " + this.totalInterfaces);
+
+		System.out.println("Total methods: " + totalMethods);
+		System.out.println("Public Methods: " + this.totalPublicMethods + " ["
+				+ ((this.totalPublicMethods * 1.0f) / totalMethods) + "]");
+		System.out.println("Private Methods: " + this.totalPrivateMethods
+				+ " [" + ((this.totalPrivateMethods * 1.0f) / totalMethods)
+				+ "]");
+		System.out.println("Protected Methods: " + this.totalProtectedMethods
+				+ " [" + ((this.totalProtectedMethods * 1.0f) / totalMethods)
+				+ "]");
+		System.out
+				.println("Without Access Specifier Methods: "
+						+ this.totalWithoutAccessSpecifierMethods
+						+ " ["
+						+ ((this.totalWithoutAccessSpecifierMethods * 1.0f) / totalMethods)
+						+ "]");
+
+		System.out.println("Total Fields: " + totalFields);
+		System.out.println("Public Fields: " + this.totalPublicFields + " ["
+				+ ((this.totalPublicFields * 1.0f) / totalMethods) + "]");
+		System.out.println("Private Fields: " + this.totalPrivateFields + " ["
+				+ ((this.totalPrivateFields * 1.0f) / totalMethods) + "]");
+		System.out.println("Protected Fields: " + this.totalProtectedFields
+				+ " [" + ((this.totalProtectedFields * 1.0f) / totalMethods)
+				+ "]");
+		System.out
+				.println("Without Access Specifier Fields: "
+						+ this.totalWithoutAccessSpecifierFields
+						+ " ["
+						+ ((this.totalWithoutAccessSpecifierFields * 1.0f) / totalMethods)
+						+ "]");
 	}
 }
