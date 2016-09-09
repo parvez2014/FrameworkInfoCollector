@@ -41,7 +41,7 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 		FrameworkInfoLoader loader = new FrameworkInfoLoader();
 		try {
 			loader.load();
-			loader.save("D:\\data\\swing_awt.txt");
+			loader.save("E:\\data\\swing_awt.txt");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
