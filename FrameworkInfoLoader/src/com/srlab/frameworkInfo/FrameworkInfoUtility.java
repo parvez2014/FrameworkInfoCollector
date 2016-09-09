@@ -5,7 +5,9 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 public class FrameworkInfoUtility {
-	public static String frameworks[] = {"javax.swing","java.awt." };
+	public static String frameworks[] = {"javax.swing"
+	    //,"java.awt." 
+	    };
 	
 	public static String code_file_extensions[] = { ".java" };
 

@@ -40,8 +40,8 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 			"Hello, Welcome to FrameworkInfoLoader");
 		FrameworkInfoLoader loader = new FrameworkInfoLoader();
 		try {
-			loader.load();
-			loader.save("E:\\data\\swing_awt.txt");
+			loader.run();
+			loader.save("F:\\output\\swing.fwk");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

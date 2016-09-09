@@ -481,7 +481,7 @@ public class FrameworkInfoLoader {
 			}
 		}
 	}
-	public void load() throws CoreException{
+	public void run() throws CoreException{
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		System.out.println("Root Location:" + root.getLocation().toOSString());
 		IProject[] projects = root.getProjects();
