@@ -10,6 +10,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 import com.srlab.frameworkInfo.FrameworkInfoLoader;
+import com.srlab.frameworkInfo.FrameworkInfoUtility;
 
 /**
  * Our sample action implements workbench action delegate.
@@ -38,10 +39,11 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 			window.getShell(),
 			"FrameWorkInfoLoader",
 			"Hello, Welcome to FrameworkInfoLoader");
-		FrameworkInfoLoader loader = new FrameworkInfoLoader();
+		FrameworkInfoLoader frameworkInfoLoader = new FrameworkInfoLoader();
 		try {
-			loader.run();
-			loader.save("F:\\output\\swing.fwk");
+			frameworkInfoLoader.run();
+			frameworkInfoLoader.saveClassNameOnly(FrameworkInfoUtility.framework_class_info_path);
+			frameworkInfoLoader.saveFullFrameworkInfo(FrameworkInfoUtility.framework_full_info_path);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
