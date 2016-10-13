@@ -57,7 +57,7 @@ public class TypeRelationAnalyzer {
 	}
 	
 	//only call this one time
-	public void allSubTypeFinder(){
+	public void findAllSubTypes(){
 		for(IType iType:this.iTypeList){
 			this.getAllSubTypes(iType.getFullyQualifiedName());
 		}
@@ -86,7 +86,7 @@ public class TypeRelationAnalyzer {
                 for (String parameterTypeSignature : method.getParameterTypes()) {
                     if (parameterTypeSignature.startsWith("L")) {
                         //p1. If method parameter type matches with with our find type
-                        String parameter = FrameworkInfoUtility.typeSignatureToFullName(method,parameterTypeSignature);
+                        String parameter = Utility.typeSignatureToFullName(method,parameterTypeSignature);
                         IType parameterType = this.hmQualifiedNameToIType.get(parameter);
 
                         //System.out.println("ParameterTypeSignature:" +parameterTypeSignature);
@@ -277,7 +277,7 @@ public class TypeRelationAnalyzer {
         return false;
     }
     */
-	public void subTypeFinder() throws JavaModelException {
+	public void findSubTypes() throws JavaModelException {
 		System.out.println("Total Type List = " + this.iTypeList.size());
 
 		for (IType iType : this.iTypeList) {

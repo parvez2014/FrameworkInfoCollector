@@ -9,13 +9,12 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 
 
-public class FrameworkInfoUtility {
-    public static String[] frameworks = { "javax.swing." };
-    public static final String framework_name = "swing";
-    public static final String framework_full_info_path = "E:\\output\\" +
-        framework_name + "_full_info" + ".txt";
-    public static final String framework_class_info_path = "E:\\output\\" +
-        framework_name + "_class_info" + ".txt";
+public class Utility {
+    
+	public static String[] frameworks = { "javax.swing." };
+    public static String basePath = "E:\\output\\";
+    public static final String framework_full_info_path = basePath +"framework_full_info" + ".txt";
+    public static final String framework_class_info_path = basePath +"framework_class_info" + ".txt";
     public static final String[] code_file_extensions = { ".java" };
 
     public static boolean isInteresting(ITypeBinding tb) {

@@ -30,23 +30,28 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 
 
-public class FrameworkInfoLoader {
+public class Loader {
     private ArrayList<IType> iTypeList;
     private HashMap<String, IType> hmQualifiedNameToiType;
   
-    public FrameworkInfoLoader() {
+    public Loader() {
         this.iTypeList = new ArrayList();
         this.hmQualifiedNameToiType = new HashMap();
     }
 
-  
-
+    /**
+     * you need to change this function to determine which framework classes and method you are interested in
+     * in our case we collect public and protected classes. We also omit inner classes.
+     * @param javaElement
+     * @return
+     * @throws JavaModelException
+     */
     private boolean check(IJavaElement javaElement) throws JavaModelException{
     	if(javaElement instanceof IType){
     		IType iType = (IType)javaElement;
     		if(iType.getElementName().length() > 0 &&
               (Flags.isPublic(iType.getFlags()) || Flags.isProtected(iType.getFlags())) &&
-              FrameworkInfoUtility.isInteresting(iType.getFullyQualifiedName()) &&
+              Utility.isInteresting(iType.getFullyQualifiedName()) &&
               iType.getFullyQualifiedName().contains("$") == false){
     			
     			return true;
@@ -95,14 +100,14 @@ public class FrameworkInfoLoader {
                     ArrayList<String> parameterList = new ArrayList();
 
                     for (String parameter : method.getParameterTypes()) {
-                        parameterList.add(FrameworkInfoUtility.typeSignatureToFullName(method,
+                        parameterList.add(Utility.typeSignatureToFullName(method,
                                 parameter));
                     }
 
                     String methodLine = "<method>" + "<name>" + methodName +
                         "</name>" + "<param>" + parameterList.toString() +
                         "</param>" + "<return>" +
-                        FrameworkInfoUtility.typeSignatureToFullName(method,
+                        Utility.typeSignatureToFullName(method,
                             Signature.getReturnType(method.getSignature())) +
                         "</return>" + "</method>";
                     lineList.add(methodLine);

@@ -9,8 +9,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
-import com.srlab.frameworkInfo.FrameworkInfoLoader;
-import com.srlab.frameworkInfo.FrameworkInfoUtility;
+import com.srlab.frameworkInfo.Loader;
+import com.srlab.frameworkInfo.Utility;
 
 /**
  * Our sample action implements workbench action delegate.
@@ -39,11 +39,11 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 			window.getShell(),
 			"FrameWorkInfoLoader",
 			"Hello, Welcome to FrameworkInfoLoader");
-		FrameworkInfoLoader frameworkInfoLoader = new FrameworkInfoLoader();
+		Loader frameworkInfoLoader = new Loader();
 		try {
 			frameworkInfoLoader.run();
-			frameworkInfoLoader.saveClassNameOnly(FrameworkInfoUtility.framework_class_info_path);
-			frameworkInfoLoader.saveFullFrameworkInfo(FrameworkInfoUtility.framework_full_info_path);
+			frameworkInfoLoader.saveClassNameOnly(Utility.framework_class_info_path);
+			frameworkInfoLoader.saveFullFrameworkInfo(Utility.framework_full_info_path);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
