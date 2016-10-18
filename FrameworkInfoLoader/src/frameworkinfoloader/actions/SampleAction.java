@@ -9,6 +9,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import com.srlab.frameworkInfo.FrameworkStatistics;
 import com.srlab.frameworkInfo.Loader;
 import com.srlab.frameworkInfo.Utility;
 
@@ -44,6 +45,9 @@ public class SampleAction implements IWorkbenchWindowActionDelegate {
 			frameworkInfoLoader.run();
 			frameworkInfoLoader.saveClassNameOnly(Utility.framework_class_info_path);
 			frameworkInfoLoader.saveFullFrameworkInfo(Utility.framework_full_info_path);
+			FrameworkStatistics statistics = new FrameworkStatistics();
+			statistics.run(frameworkInfoLoader.getiTypeList());
+			statistics.print();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

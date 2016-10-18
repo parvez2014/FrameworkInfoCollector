@@ -33,8 +33,8 @@ import javax.swing.JFrame;
 public class Loader {
     private ArrayList<IType> iTypeList;
     private HashMap<String, IType> hmQualifiedNameToiType;
-  
-    public Loader() {
+
+	public Loader() {
         this.iTypeList = new ArrayList();
         this.hmQualifiedNameToiType = new HashMap();
     }
@@ -61,6 +61,14 @@ public class Loader {
     	else return false;
     }
     
+    public ArrayList<IType> getiTypeList() {
+		return iTypeList;
+	}
+
+	public HashMap<String, IType> getHmQualifiedNameToiType() {
+		return hmQualifiedNameToiType;
+	}
+	
     public void saveClassNameOnly(String filePath) throws IOException{
     	ArrayList<String> classLineList = new ArrayList();
     	for (int i = 0; i < this.iTypeList.size(); i++) {
