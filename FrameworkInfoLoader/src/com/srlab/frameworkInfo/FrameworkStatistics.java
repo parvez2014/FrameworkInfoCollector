@@ -50,6 +50,7 @@ public class FrameworkStatistics {
                 }
 
                 for (IMethod method : type.getMethods()) {
+                	if(method.getElementName().contains("$")) continue;
                     totalMethods++;
 
                     if (Flags.isPublic(method.getFlags())) {

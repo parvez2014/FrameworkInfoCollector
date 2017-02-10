@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 
 public class Utility {
     
-	public static String[] frameworks = { "javax.swing." };
+	public static String[] frameworks = { "java.awt." };
     public static String basePath = "E:\\output\\";
     public static final String framework_full_info_path = basePath +"framework_full_info" + ".txt";
     public static final String framework_class_info_path = basePath +"framework_class_info" + ".txt";
